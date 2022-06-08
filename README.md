@@ -9,3 +9,4 @@ Projekat sadrzi oblasti
  A - Framebuffers
  B - HDR, Bloom
  
+LINK ZA JUTJUB : https://www.youtube.com/watch?v=uWCjHYtVDm8
