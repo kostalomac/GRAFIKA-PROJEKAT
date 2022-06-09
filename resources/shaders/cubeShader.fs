@@ -69,11 +69,12 @@ uniform vec3 viewPosition;
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 {
     vec3 lightDir = normalize(light.position - fragPos);
+    vec3 halfwayDir = normalize(lightDir + viewDir);
     // diffuse shading
     float diff = max(dot(normal, lightDir), 0.0);
     // specular shading
     vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+    float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
     // attenuation
     float distance = length(light.position - fragPos);
     float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
@@ -92,9 +93,9 @@ vec3 CalcDirLight(DirectionalLight light, vec3 normal, vec3 fragPos, vec3 viewDi
 {
     vec3 lightDir = normalize(-light.direction);
     float diff = max(dot(normal, lightDir), 0.0);
-
+    vec3 halfwayDir = normalize(lightDir + viewDir);
     vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+    float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
     vec3 ambient = light.ambient * vec3(texture(material.texture_diffuse1, TexCoords));
     vec3 diffuse = light.diffuse * diff * vec3(texture(material.texture_diffuse1, TexCoords));
     vec3 specular = light.specular * spec * vec3(texture(material.texture_specular1, TexCoords));
@@ -107,6 +108,11 @@ vec3 CalcSpotLight(Spotlight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 {
     vec3 lightDir = normalize(light.position - fragPos);
     float diff = max(dot(normal, lightDir), 0.0);
+    //SPECULAR
+    //vec3 viewDir =  normalize(light.position - fragPos);
+
+
+
 
     float spec = pow(max(dot(lightDir, normal), 0.0), material.shininess);
     float distance = length(light.position - fragPos);
@@ -120,11 +126,11 @@ vec3 CalcSpotLight(Spotlight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     float temp = max(dot(normalize(lightDir),normalize(-light.lightDir)),0);
     if(temp>0.995)
     {
-       return (ambient + diffuse + specular);
+       return (ambient+diffuse+specular);
     }
     if(temp>0.98)
     {
-       return (ambient + diffuse + specular)*(temp - 0.98 )* 66.6666666667;
+       return (ambient+diffuse+specular)*(temp - 0.98 )* 66.6666666667;
     }
 }
 

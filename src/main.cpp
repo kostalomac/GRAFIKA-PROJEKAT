@@ -55,6 +55,7 @@
     bool ulkjuciKernel = false;
     bool ulkjuciBLUR = false;
     bool hdr = false;
+    bool FACECULLINGENABLED = false;
     float exposure ;
 
 
@@ -217,6 +218,8 @@ int main() {
     Shader BlurShader("resources/shaders/BlurShader.vs", "resources/shaders/BlurShader.fs");
     Shader IzvodjSvetla("resources/shaders/BlurShader.vs", "resources/shaders/IzdvojSvetla.fs");
     Shader BloomFinal("resources/shaders/BlurShader.vs","resources/shaders/BloomFinal.fs");
+    Shader BasicShader("resources/shaders/BasicShader.vs","resources/shaders/BasicShader.fs");
+
     // load models
     // -----------
     Model ourModel("resources/objects/male/Male.obj");
@@ -392,9 +395,15 @@ int main() {
     }
     stbi_image_free(data2);
 
+
+
+
+
     ourShader.setInt("texture1", 0);
 
     ourShader.setInt("texture2", 1);
+
+    BasicShader.setInt("texture1", 0);
 
 
 #pragma endregion TEXTURA-SETUP
@@ -472,6 +481,14 @@ int main() {
 
     while (!glfwWindowShouldClose(window)) {
 
+
+            if(FACECULLINGENABLED==true)
+            {
+                glEnable(GL_CULL_FACE);
+                glCullFace(GL_BACK);
+            }else{
+                glDisable(GL_CULL_FACE);
+            }
 
             #pragma region LOOP-SETUP
 
@@ -590,6 +607,7 @@ int main() {
 
 
 
+
                     glActiveTexture(GL_TEXTURE0);
                     glBindTexture(GL_TEXTURE_2D, texture2);
 
@@ -616,6 +634,17 @@ int main() {
                     cubeShader.setMat4("model", model);
                     glDrawArrays(GL_TRIANGLES, 0, 36);
 
+
+                    BasicShader.use();
+        BasicShader.setMat4("projection", projection);
+        BasicShader.setMat4("view", view);
+        BasicShader.setMat4("model", glm::mat4(1.0f));
+                    glActiveTexture(GL_TEXTURE0);
+                    glBindTexture(GL_TEXTURE_2D, texture);
+                    model = glm::scale(glm::mat4 (1.0f), glm::vec3 (3.0,3.0,3.0));
+                    model = glm::translate(model, glm::vec3 (0.0f,0.0f,0.0f));
+                    BasicShader.setMat4("model", model);
+                    glDrawArrays(GL_TRIANGLES, 0, 36);
 
 
                 #pragma endregion SPAWN-VELIKA-KUTIJA
@@ -799,6 +828,18 @@ void processInputScreenShejder(GLFWwindow  *window,Shader *nasShejder ) {
             nasShejder->setFloat("exposure",exposure );
             exposure = exposure - 0.1;
             cout<<exposure<<endl;
+
+            time = glfwGetTime();
+
+        }
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS)
+    {
+        if(glfwGetTime()-time > 0.2)
+        {
+
+            FACECULLINGENABLED = !FACECULLINGENABLED;
 
             time = glfwGetTime();
 
